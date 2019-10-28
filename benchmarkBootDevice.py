@@ -88,7 +88,9 @@ def benchmarkdd(results):
 
 def fiorun(bs, size, mode, rwmix=""):
     fiocmd = "fio --name=tempfile --rw={} --direct=1 --ioengine=libaio --bs={}  --size={} {} --output-format=json".format(mode, bs, size, rwmix)
+    print(fiocmd)
     out = subprocess.run(fiocmd.split(), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    # print( out.stdout.decode('utf-8'))
     outdict = json.loads(out.stdout.decode('utf-8'))
     if mode == "write" or mode == "randwrite":
         #get write bw
@@ -115,35 +117,39 @@ def fioavg(bs, size):
     readrandtotal = 0
     rw_readrandtotal = 0
     rw_writerandtotal = 0
-    writetotal = writeseqtotal + fiorun(bs, size, "write")
-    os.remove("tempfile.0.0")
-    readseqtotal = readseqtotal + fiorun(bs, size, "read")
-    os.remove("tempfile.0.0")
-    writerandtotal = writerandtotal + fiorun(bs, size, "randwrite")
-    os.remove("tempfile.0.0")
-    readrandtotal = readrandtotal + fiorun(bs, size, "randread")
-    os.remove("tempfile.0.0")
-    read, write = fiorun(bs, size, "randrw", "--rwmixread=90")
-    rw_readrandtotal = rw_readrandtotal + read
-    rw_writerandtotal = rw_writerandtotal + write
-    os.remove("tempfile.0.0")
 
-    writeseqavg = writeseqtotal
-    readseqavg = readseqtotal
-    writerandavg = writerandtotal
-    readrandavg = readrandtotal
-    rw_readrandavg = rw_readrandtotal
-    rw_writerandavg = rw_writerandtotal
+    #run multiple times to remove noise
+    repeat = 3
+    for i in range(1, repeat):
+        writeseqtotal = writeseqtotal + fiorun(bs, size, "write")
+        # readseqtotal = readseqtotal + fiorun(bs, size, "read")
+        # os.remove("tempfile.0.0")
+        # writerandtotal = writerandtotal + fiorun(bs, size, "randwrite")
+        # os.remove("tempfile.0.0")
+        # readrandtotal = readrandtotal + fiorun(bs, size, "randread")
+        # os.remove("tempfile.0.0")
+        # read, write = fiorun(bs, size, "randrw", "--rwmixread=90")
+        # rw_readrandtotal = rw_readrandtotal + read
+        # rw_writerandtotal = rw_writerandtotal + write
+        # os.remove("tempfile.0.0")
 
-    return writeseqavg, readseqavg, writerandavg, readrandavg, rw_readrandavg, rw_writerandavg
+    writeseqavg = writeseqtotal / repeat
+    # readseqavg = readseqtotal / repeat
+    # writerandavg = writerandtotal / repeat
+    # readrandavg = readrandtotal / repeat
+    # rw_readrandavg = rw_readrandtotal / repeat
+    # rw_writerandavg = rw_writerandtotal / repeat
+
+    return writeseqavg, 0, 0, 0, 0, 0
+    # return writeseqavg, readseqavg, writerandavg, readrandavg, rw_readrandavg, rw_writerandavg
 
 def benchmarkfio(results):
     print("running fio benchmarks, this may take a while.....")
     filesizes = {"2GiB" : twoGiB, "4GiB" : fourGiB, "8GiB" : eightGiB}
-    blocksizes = {"512" : 512, "4KiB" : (4*oneK), "16KiB" : (16*oneK), "64KiB": (64*oneK), "1MiB" : oneM, "50MiB" : (50*oneM)}
+    blocksizes = {"512", "4k", "16k", "64k", "1M", "50M"}
     results.write("### fio benchmarks ###\r\n")
     for fshuman, numbytes in filesizes.items():
-        for bshuman, bsbytes in blocksizes.items():
+        for bshuman in blocksizes:
             writeseqavg, readseqavg, writerandavg, readrandavg, rw_readrandavg, rw_writerandavg = fioavg(bshuman, fshuman)
             print("################## fio {} bs={} avg results #######################".format(fshuman, bshuman))
             print("write_seq = {}, read_seq = {}, write_rand = {}, read_rand = {}, rw_read_rand = {}, rw_write_rand".format(writeseqavg, readseqavg, writerandavg, readrandavg, rw_readrandavg, rw_writerandavg))
