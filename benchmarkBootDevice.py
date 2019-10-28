@@ -122,26 +122,25 @@ def fioavg(bs, size):
     repeat = 3
     for i in range(1, repeat):
         writeseqtotal = writeseqtotal + fiorun(bs, size, "write")
-        # readseqtotal = readseqtotal + fiorun(bs, size, "read")
-        # os.remove("tempfile.0.0")
-        # writerandtotal = writerandtotal + fiorun(bs, size, "randwrite")
-        # os.remove("tempfile.0.0")
-        # readrandtotal = readrandtotal + fiorun(bs, size, "randread")
-        # os.remove("tempfile.0.0")
-        # read, write = fiorun(bs, size, "randrw", "--rwmixread=90")
-        # rw_readrandtotal = rw_readrandtotal + read
-        # rw_writerandtotal = rw_writerandtotal + write
-        # os.remove("tempfile.0.0")
+        readseqtotal = readseqtotal + fiorun(bs, size, "read")
+        os.remove("tempfile.0.0")
+        writerandtotal = writerandtotal + fiorun(bs, size, "randwrite")
+        os.remove("tempfile.0.0")
+        readrandtotal = readrandtotal + fiorun(bs, size, "randread")
+        os.remove("tempfile.0.0")
+        read, write = fiorun(bs, size, "randrw", "--rwmixread=90")
+        rw_readrandtotal = rw_readrandtotal + read
+        rw_writerandtotal = rw_writerandtotal + write
+        os.remove("tempfile.0.0")
 
     writeseqavg = writeseqtotal / repeat
-    # readseqavg = readseqtotal / repeat
-    # writerandavg = writerandtotal / repeat
-    # readrandavg = readrandtotal / repeat
-    # rw_readrandavg = rw_readrandtotal / repeat
-    # rw_writerandavg = rw_writerandtotal / repeat
+    readseqavg = readseqtotal / repeat
+    writerandavg = writerandtotal / repeat
+    readrandavg = readrandtotal / repeat
+    rw_readrandavg = rw_readrandtotal / repeat
+    rw_writerandavg = rw_writerandtotal / repeat
 
-    return writeseqavg, 0, 0, 0, 0, 0
-    # return writeseqavg, readseqavg, writerandavg, readrandavg, rw_readrandavg, rw_writerandavg
+    return writeseqavg, readseqavg, writerandavg, readrandavg, rw_readrandavg, rw_writerandavg
 
 def benchmarkfio(results):
     print("running fio benchmarks, this may take a while.....")
@@ -162,5 +161,5 @@ if os.geteuid() != 0:
    exit("You need to have root privileges to run this script.\nPlease try again, this time using 'sudo'. Exiting.")
 resultsfile = open("benchmarkResults.csv", "w+")
 benchmarkfio(resultsfile)
-# benchmarkdd(resultsfile)
+benchmarkdd(resultsfile)
 resultsfile.close()
