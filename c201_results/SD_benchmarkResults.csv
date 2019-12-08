@@ -1,3 +1,4 @@
+#### All results are in MB/s ####
 ### fio benchmarks ###
 ## key ##
 ## <write sequential avg> <read sequential avg> <write random avg> <read random avg> <read/write write rand avg> <read/write read rand avg> <file size> <block size> ##
