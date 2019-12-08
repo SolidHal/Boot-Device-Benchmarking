@@ -128,7 +128,7 @@ def fioavg(bs, size):
         os.remove("tempfile.0.0")
         readrandtotal = readrandtotal + fiorun(bs, size, "randread")
         os.remove("tempfile.0.0")
-        read, write = fiorun(bs, size, "randrw", "--rwmixread=90")
+        write, read = fiorun(bs, size, "randrw", "--rwmixread=90")
         rw_readrandtotal = rw_readrandtotal + read
         rw_writerandtotal = rw_writerandtotal + write
         os.remove("tempfile.0.0")
@@ -151,8 +151,8 @@ def benchmarkfio(results):
         for bshuman in blocksizes:
             writeseqavg, readseqavg, writerandavg, readrandavg, rw_readrandavg, rw_writerandavg = fioavg(bshuman, fshuman)
             print("################## fio {} bs={} avg results #######################".format(fshuman, bshuman))
-            print("write_seq = {}, read_seq = {}, write_rand = {}, read_rand = {}, rw_read_rand = {}, rw_write_rand".format(writeseqavg, readseqavg, writerandavg, readrandavg, rw_readrandavg, rw_writerandavg))
-            results.write("{}, {}, {}, {}, {}, {}, {}, {}\r\n".format(writeseqavg, readseqavg, writerandavg, readrandavg, rw_readrandavg, rw_writerandavg, fshuman, bshuman))
+            print("write_seq = {}, read_seq = {}, write_rand = {}, read_rand = {}, rw_read_rand = {}, rw_write_rand".format(writeseqavg, readseqavg, writerandavg, readrandavg, rw_writerandavg, rw_readrandavg))
+            results.write("{}, {}, {}, {}, {}, {}, {}, {}\r\n".format(writeseqavg, readseqavg, writerandavg, readrandavg, rw_writerandavg, rw_readrandavg, fshuman, bshuman))
     results.write("### fio benchmarks end ###\r\n")
 
 
